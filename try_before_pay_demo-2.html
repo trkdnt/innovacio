@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TrustPay – Try Before Pay Demo</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f4f0; color: #1a1a18; min-height: 100vh; padding: 2rem; }
+  :root {
+    --color-background-primary: #ffffff;
+    --color-background-secondary: #f1efe8;
+    --color-background-tertiary: #f5f4f0;
+    --color-text-primary: #1a1a18;
+    --color-text-secondary: #5f5e5a;
+    --color-text-tertiary: #888780;
+    --color-border-tertiary: rgba(0,0,0,0.12);
+    --color-border-secondary: rgba(0,0,0,0.25);
+    --border-radius-md: 8px;
+    --border-radius-lg: 12px;
+    --border-radius-xl: 16px;
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  .app { max-width: 900px; margin: 0 auto; }
+  .header { margin-bottom: 1.5rem; }
+  .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+  .logo-mark { width: 32px; height: 32px; background: #1D9E75; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+  .logo-mark svg { width: 18px; height: 18px; fill: none; stroke: #fff; stroke-width: 2; }
+  .logo-name { font-size: 18px; font-weight: 500; color: var(--color-text-primary); }
+  .logo-tag { font-size: 12px; color: var(--color-text-secondary); margin-left: 42px; }
+  .tabs { display: flex; gap: 2px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 3px; margin-bottom: 1.5rem; }
+  .tab { flex: 1; padding: 8px 12px; font-size: 13px; font-weight: 400; color: var(--color-text-secondary); background: transparent; border: none; border-radius: 6px; cursor: pointer; transition: all 0.15s; text-align: center; }
+  .tab.active { background: var(--color-background-primary); color: var(--color-text-primary); font-weight: 500; border: 0.5px solid var(--color-border-tertiary); }
+  .tab:hover:not(.active) { color: var(--color-text-primary); }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .checkout-layout { display: grid; grid-template-columns: 1fr 340px; gap: 16px; }
+  .product-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; }
+  .product-img { width: 100%; height: 160px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; }
+  .product-img-inner { text-align: center; }
+  .product-icon { font-size: 48px; }
+  .product-label { font-size: 11px; color: var(--color-text-tertiary); margin-top: 4px; }
+  .product-name { font-size: 16px; font-weight: 500; margin-bottom: 4px; }
+  .product-sub { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 1rem; }
+  .product-price { font-size: 22px; font-weight: 500; margin-bottom: 4px; }
+  .product-sizes { display: flex; gap: 8px; margin-bottom: 1rem; }
+  .size-btn { width: 36px; height: 36px; border: 0.5px solid var(--color-border-secondary); border-radius: 6px; background: transparent; cursor: pointer; font-size: 13px; color: var(--color-text-primary); }
+  .size-btn.selected { border: 2px solid #1D9E75; color: #1D9E75; font-weight: 500; }
+
+  .checkout-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; }
+  .section-title { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 1rem; }
+  .trust-bar-wrap { margin-bottom: 1rem; }
+  .trust-bar-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .trust-label { font-size: 13px; color: var(--color-text-secondary); }
+  .trust-score { font-size: 18px; font-weight: 500; }
+  .trust-score.high { color: #1D9E75; }
+  .trust-score.med { color: #BA7517; }
+  .trust-score.low { color: #A32D2D; }
+  .bar-track { height: 8px; background: var(--color-background-secondary); border-radius: 99px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 99px; transition: width 0.6s cubic-bezier(.4,0,.2,1); }
+  .bar-fill.high { background: #1D9E75; }
+  .bar-fill.med { background: #BA7517; }
+  .bar-fill.low { background: #A32D2D; }
+  .trust-factors { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 1rem; }
+  .factor { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 8px 10px; }
+  .factor-name { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 2px; }
+  .factor-val { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+  .divider { height: 0.5px; background: var(--color-border-tertiary); margin: 1rem 0; }
+  .pay-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 1rem; }
+  .pay-option { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 12px; cursor: pointer; transition: border-color 0.15s; }
+  .pay-option.selected { border: 2px solid #1D9E75; background: #E1F5EE; }
+  .pay-option.locked { opacity: 0.45; cursor: not-allowed; }
+  .pay-option-header { display: flex; align-items: center; justify-content: space-between; }
+  .pay-option-name { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
+  .pay-option-badge { font-size: 11px; padding: 2px 8px; border-radius: 99px; font-weight: 500; }
+  .badge-green { background: #E1F5EE; color: #0F6E56; }
+  .badge-gray { background: var(--color-background-secondary); color: var(--color-text-secondary); }
+  .badge-lock { background: #FCEBEB; color: #A32D2D; }
+  .pay-option-desc { font-size: 12px; color: var(--color-text-secondary); margin-top: 4px; }
+  .cta-btn { width: 100%; padding: 12px; background: #1D9E75; color: #fff; border: none; border-radius: var(--border-radius-md); font-size: 15px; font-weight: 500; cursor: pointer; transition: background 0.15s; }
+  .cta-btn:hover { background: #0F6E56; }
+  .order-lines { margin-bottom: 1rem; }
+  .order-line { display: flex; justify-content: space-between; font-size: 13px; color: var(--color-text-secondary); padding: 4px 0; }
+  .order-total { display: flex; justify-content: space-between; font-size: 15px; font-weight: 500; padding: 8px 0 0; border-top: 0.5px solid var(--color-border-tertiary); }
+  .user-switcher { display: flex; gap: 8px; margin-bottom: 1rem; }
+  .user-btn { flex: 1; padding: 8px; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); background: transparent; cursor: pointer; text-align: center; font-size: 12px; color: var(--color-text-secondary); transition: all 0.15s; }
+  .user-btn.active { border: 2px solid #1D9E75; color: #1D9E75; font-weight: 500; background: #E1F5EE; }
+  .user-btn-name { font-weight: 500; font-size: 13px; color: var(--color-text-primary); }
+  .success-overlay { display: none; position: absolute; inset: 0; background: rgba(29,158,117,0.95); border-radius: var(--border-radius-lg); align-items: center; justify-content: center; flex-direction: column; gap: 12px; z-index: 10; }
+  .success-overlay.show { display: flex; }
+  .success-icon { width: 56px; height: 56px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .success-text { color: #fff; font-size: 18px; font-weight: 500; }
+  .success-sub { color: rgba(255,255,255,0.85); font-size: 13px; text-align: center; padding: 0 20px; }
+  .success-dismiss { background: rgba(255,255,255,0.2); border: none; color: #fff; padding: 8px 20px; border-radius: 99px; cursor: pointer; font-size: 13px; margin-top: 4px; }
+  .checkout-wrap { position: relative; }
+
+  .stat-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
+  .stat-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 1rem; }
+  .stat-label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 6px; }
+  .stat-val { font-size: 22px; font-weight: 500; }
+  .stat-delta { font-size: 12px; margin-top: 4px; }
+  .delta-up { color: #1D9E75; }
+  .orders-table { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; margin-bottom: 1.5rem; }
+  .table-header { display: grid; grid-template-columns: 2fr 1.2fr 1fr 1fr 1.2fr; padding: 10px 16px; background: var(--color-background-secondary); border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .th { font-size: 11px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; }
+  .table-row { display: grid; grid-template-columns: 2fr 1.2fr 1fr 1fr 1.2fr; padding: 12px 16px; border-bottom: 0.5px solid var(--color-border-tertiary); align-items: center; }
+  .table-row:last-child { border-bottom: none; }
+  .td { font-size: 13px; }
+  .td-muted { font-size: 12px; color: var(--color-text-secondary); }
+  .status-pill { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 500; }
+  .pill-pending { background: #FAEEDA; color: #854F0B; }
+  .pill-kept { background: #E1F5EE; color: #0F6E56; }
+  .pill-returned { background: #F1EFE8; color: #5F5E5A; }
+  .chart-section { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; }
+  .chart-title { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 1rem; }
+  .bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 100px; }
+  .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .bar-seg-wrap { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; width: 100%; gap: 2px; }
+  .bar-seg { width: 100%; border-radius: 4px 4px 0 0; }
+  .bar-lbl { font-size: 10px; color: var(--color-text-tertiary); }
+
+  .risk-layout { display: grid; grid-template-columns: 260px 1fr; gap: 16px; }
+  .user-list { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; }
+  .user-list-header { padding: 12px 16px; border-bottom: 0.5px solid var(--color-border-tertiary); font-size: 12px; font-weight: 500; color: var(--color-text-secondary); }
+  .user-row { padding: 12px 16px; border-bottom: 0.5px solid var(--color-border-tertiary); cursor: pointer; transition: background 0.1s; }
+  .user-row:last-child { border-bottom: none; }
+  .user-row:hover { background: var(--color-background-secondary); }
+  .user-row.active { background: #E1F5EE; }
+  .user-row-name { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+  .user-row-meta { font-size: 11px; color: var(--color-text-secondary); }
+  .score-circle-wrap { display: flex; justify-content: center; margin-bottom: 1.25rem; }
+  .score-circle { position: relative; width: 120px; height: 120px; }
+  .score-circle svg { width: 120px; height: 120px; transform: rotate(-90deg); }
+  .score-circle-text { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .score-num { font-size: 28px; font-weight: 500; }
+  .score-lbl { font-size: 11px; color: var(--color-text-secondary); }
+  .detail-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; }
+  .detail-name { font-size: 16px; font-weight: 500; margin-bottom: 2px; }
+  .detail-sub { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 1.25rem; }
+  .factors-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.25rem; }
+  .factor-row { display: flex; align-items: center; gap: 10px; }
+  .factor-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 12px; }
+  .factor-icon.green { background: #E1F5EE; color: #0F6E56; }
+  .factor-icon.amber { background: #FAEEDA; color: #854F0B; }
+  .factor-icon.red { background: #FCEBEB; color: #791F1F; }
+  .factor-body { flex: 1; }
+  .factor-row-name { font-size: 13px; }
+  .factor-mini-bar { height: 4px; background: var(--color-background-secondary); border-radius: 99px; margin-top: 4px; overflow: hidden; }
+  .factor-mini-fill { height: 100%; border-radius: 99px; }
+  .fmf-green { background: #1D9E75; }
+  .fmf-amber { background: #BA7517; }
+  .fmf-red { background: #A32D2D; }
+  .factor-pct { font-size: 12px; font-weight: 500; width: 36px; text-align: right; flex-shrink: 0; }
+  .limit-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .limit-row:last-child { border-bottom: none; }
+  .limit-key { font-size: 13px; color: var(--color-text-secondary); }
+  .limit-val { font-size: 13px; font-weight: 500; }
+  .action-row { display: flex; gap: 8px; margin-top: 1rem; }
+  .action-btn { flex: 1; padding: 8px; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); background: transparent; cursor: pointer; font-size: 13px; }
+  .action-btn.primary { background: #1D9E75; color: #fff; border-color: transparent; }
+  .action-btn.danger { border-color: #E24B4A; color: #A32D2D; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 18 18"><path d="M9 2L9 16M2 9L16 9" stroke-linecap="round"/><circle cx="9" cy="9" r="3" stroke-width="1.5"/></svg>
+      </div>
+      <span class="logo-name">TrustPay</span>
+    </div>
+    <div class="logo-tag">AI-alapú Try Before Pay fizetési platform</div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('checkout', this)">Vásárló – Checkout</button>
+    <button class="tab" onclick="switchTab('merchant', this)">Kereskedő – Dashboard</button>
+    <button class="tab" onclick="switchTab('bank', this)">Bank – Risk Admin</button>
+  </div>
+
+  <div id="tab-checkout" class="panel active">
+    <div style="margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
+      <span style="font-size: 12px; color: var(--color-text-secondary);">Vásárló szimulálása:</span>
+      <div class="user-switcher" style="margin-bottom: 0; width: auto;">
+        <button class="user-btn active" onclick="setUser('trusted')" id="btn-trusted"><div class="user-btn-name">Kovács Anna</div><div>Megbízható</div></button>
+        <button class="user-btn" onclick="setUser('medium')" id="btn-medium"><div class="user-btn-name">Tóth Béla</div><div>Közepes</div></button>
+        <button class="user-btn" onclick="setUser('risky')" id="btn-risky"><div class="user-btn-name">Kiss Csaba</div><div>Kockázatos</div></button>
+      </div>
+    </div>
+    <div class="checkout-layout">
+      <div class="product-card">
+        <div class="product-img">
+          <div class="product-img-inner">
+            <div class="product-icon">👗</div>
+            <div class="product-label">StyleHub – FW 2025</div>
+          </div>
+        </div>
+        <div class="product-name">Milano Midi Dress</div>
+        <div class="product-sub">Recycled linen blend · Sage green</div>
+        <div class="product-price">24 990 Ft</div>
+        <div style="font-size: 12px; color: var(--color-text-secondary); margin-bottom: 8px;">Méret:</div>
+        <div class="product-sizes">
+          <button class="size-btn" onclick="selectSize(this)">XS</button>
+          <button class="size-btn selected" onclick="selectSize(this)">S</button>
+          <button class="size-btn" onclick="selectSize(this)">M</button>
+          <button class="size-btn" onclick="selectSize(this)">L</button>
+        </div>
+      </div>
+      <div class="checkout-wrap">
+        <div class="checkout-card" id="checkout-main">
+          <div class="section-title">AI trust értékelés</div>
+          <div class="trust-bar-wrap">
+            <div class="trust-bar-label">
+              <span class="trust-label">Trust Score</span>
+              <span class="trust-score high" id="trust-score-val">92 / 100</span>
+            </div>
+            <div class="bar-track"><div class="bar-fill high" id="trust-bar" style="width: 92%;"></div></div>
+          </div>
+          <div class="trust-factors">
+            <div class="factor"><div class="factor-name">Fizetési előzmény</div><div class="factor-val" id="f1">Kiváló</div></div>
+            <div class="factor"><div class="factor-name">Visszaküldési arány</div><div class="factor-val" id="f2">8%</div></div>
+            <div class="factor"><div class="factor-name">Fiókkor</div><div class="factor-val" id="f3">3 év</div></div>
+            <div class="factor"><div class="factor-name">Fraud jelek</div><div class="factor-val" id="f4">Nincs</div></div>
+          </div>
+          <div class="divider"></div>
+          <div class="section-title">Fizetési mód</div>
+          <div class="pay-options">
+            <div class="pay-option selected" id="opt-tbp" onclick="selectPayOption('tbp')">
+              <div class="pay-option-header">
+                <span class="pay-option-name">Try Before Pay</span>
+                <span class="pay-option-badge badge-green" id="tbp-badge">Elérhető</span>
+              </div>
+              <div class="pay-option-desc">Próbáld ki 14 napig – csak megtartás esetén vonunk le</div>
+            </div>
+            <div class="pay-option" id="opt-card" onclick="selectPayOption('card')">
+              <div class="pay-option-header">
+                <span class="pay-option-name">Azonnali bankkártyás fizetés</span>
+                <span class="pay-option-badge badge-gray">Klasszikus</span>
+              </div>
+              <div class="pay-option-desc">Azonnal levonásra kerül, visszaküldés esetén refund</div>
+            </div>
+          </div>
+          <div class="order-lines">
+            <div class="order-line"><span>Milano Midi Dress (S)</span><span>24 990 Ft</span></div>
+            <div class="order-line"><span>Szállítás</span><span>0 Ft</span></div>
+            <div class="order-total"><span>Összesen</span><span>24 990 Ft</span></div>
+          </div>
+          <button class="cta-btn" id="order-btn" onclick="placeOrder()">Rendelés leadása – Try Before Pay</button>
+        </div>
+        <div class="success-overlay" id="success-overlay">
+          <div class="success-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="success-text">Rendelés elküldve!</div>
+          <div class="success-sub">Ideiglenes kártya-authorization rögzítve. A fizetés csak megtartás esetén kerül levonásra 14 nap múlva.</div>
+          <button class="success-dismiss" onclick="dismissSuccess()">Vissza</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-merchant" class="panel">
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-label">TBP rendelések (30 nap)</div><div class="stat-val">1 248</div><div class="stat-delta delta-up">+18% vs előző hónap</div></div>
+      <div class="stat-card"><div class="stat-label">Megtartási arány</div><div class="stat-val">74%</div><div class="stat-delta delta-up">+6pp vs klasszikus</div></div>
+      <div class="stat-card"><div class="stat-label">Konverzió növekedés</div><div class="stat-val">+23%</div><div class="stat-delta delta-up">TBP bevezetése óta</div></div>
+      <div class="stat-card"><div class="stat-label">Refund igények</div><div class="stat-val">0</div><div class="stat-delta delta-up">Eliminálva</div></div>
+    </div>
+    <div class="orders-table">
+      <div class="table-header">
+        <div class="th">Vásárló</div><div class="th">Termék</div><div class="th">Összeg</div><div class="th">Határidő</div><div class="th">Státusz</div>
+      </div>
+      <div class="table-row"><div><div class="td">Kovács Anna</div><div class="td-muted">Trust: 92</div></div><div class="td">Milano Midi Dress</div><div class="td">24 990 Ft</div><div class="td">3 nap</div><div><span class="status-pill pill-pending">Próbaidőszak</span></div></div>
+      <div class="table-row"><div><div class="td">Molnár Eszter</div><div class="td-muted">Trust: 87</div></div><div class="td">Linen Blazer Set</div><div class="td">39 900 Ft</div><div class="td">7 nap</div><div><span class="status-pill pill-pending">Próbaidőszak</span></div></div>
+      <div class="table-row"><div><div class="td">Szabó Péter</div><div class="td-muted">Trust: 79</div></div><div class="td">Classic Denim Jacket</div><div class="td">18 990 Ft</div><div class="td">–</div><div><span class="status-pill pill-kept">Megtartva</span></div></div>
+      <div class="table-row"><div><div class="td">Nagy Viktória</div><div class="td-muted">Trust: 83</div></div><div class="td">Summer Wrap Skirt</div><div class="td">12 490 Ft</div><div class="td">–</div><div><span class="status-pill pill-returned">Visszaküldve</span></div></div>
+      <div class="table-row"><div><div class="td">Horváth Gábor</div><div class="td-muted">Trust: 91</div></div><div class="td">Merino Knit Pullover</div><div class="td">29 990 Ft</div><div class="td">–</div><div><span class="status-pill pill-kept">Megtartva</span></div></div>
+    </div>
+    <div class="chart-section">
+      <div class="chart-title">Heti rendelés megoszlás – megtartás vs visszaküldés</div>
+      <div class="bar-chart" id="merch-chart"></div>
+      <div style="display:flex;gap:12px;align-items:center;margin-top:10px;">
+        <div style="display:flex;gap:6px;align-items:center"><div style="width:10px;height:10px;background:#1D9E75;border-radius:2px"></div><span style="font-size:11px;color:var(--color-text-secondary)">Megtartva</span></div>
+        <div style="display:flex;gap:6px;align-items:center"><div style="width:10px;height:10px;background:#D3D1C7;border-radius:2px"></div><span style="font-size:11px;color:var(--color-text-secondary)">Visszaküldve</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-bank" class="panel">
+    <div class="risk-layout">
+      <div>
+        <div class="user-list">
+          <div class="user-list-header">Felhasználók</div>
+          <div class="user-row active" onclick="selectRiskUser(this, 'anna')"><div class="user-row-name">Kovács Anna</div><div class="user-row-meta">Trust: 92 · Limit: 80 000 Ft</div></div>
+          <div class="user-row" onclick="selectRiskUser(this, 'bela')"><div class="user-row-name">Tóth Béla</div><div class="user-row-meta">Trust: 61 · Limit: 30 000 Ft</div></div>
+          <div class="user-row" onclick="selectRiskUser(this, 'csaba')"><div class="user-row-name">Kiss Csaba</div><div class="user-row-meta">Trust: 28 · Limit: 0 Ft</div></div>
+          <div class="user-row" onclick="selectRiskUser(this, 'eszter')"><div class="user-row-name">Molnár Eszter</div><div class="user-row-meta">Trust: 87 · Limit: 60 000 Ft</div></div>
+        </div>
+      </div>
+      <div class="detail-card"><div id="risk-detail-inner"></div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const users = {
+  trusted: { score:92, color:'high', f1:'Kiváló', f2:'8%', f3:'3 év', f4:'Nincs', tbp:true, scoreTxt:'92 / 100' },
+  medium:  { score:61, color:'med',  f1:'Közepes',f2:'24%',f3:'8 hó', f4:'1 jel', tbp:false, scoreTxt:'61 / 100' },
+  risky:   { score:28, color:'low',  f1:'Gyenge', f2:'54%',f3:'2 hó', f4:'3 jel', tbp:false, scoreTxt:'28 / 100' }
+};
+let currentUser = 'trusted';
+let selectedPayOpt = 'tbp';
+
+function switchTab(t, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  el.classList.add('active');
+}
+
+function setUser(u) {
+  currentUser = u;
+  document.querySelectorAll('.user-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn-'+u).classList.add('active');
+  const d = users[u];
+  document.getElementById('trust-score-val').textContent = d.scoreTxt;
+  document.getElementById('trust-score-val').className = 'trust-score '+d.color;
+  document.getElementById('trust-bar').style.width = d.score+'%';
+  document.getElementById('trust-bar').className = 'bar-fill '+d.color;
+  document.getElementById('f1').textContent = d.f1;
+  document.getElementById('f2').textContent = d.f2;
+  document.getElementById('f3').textContent = d.f3;
+  document.getElementById('f4').textContent = d.f4;
+  const tbpOpt = document.getElementById('opt-tbp');
+  const badge = document.getElementById('tbp-badge');
+  const btn = document.getElementById('order-btn');
+  if(d.tbp) {
+    tbpOpt.classList.remove('locked'); badge.textContent='Elérhető'; badge.className='pay-option-badge badge-green';
+    selectedPayOpt='tbp'; tbpOpt.classList.add('selected'); document.getElementById('opt-card').classList.remove('selected');
+    btn.textContent='Rendelés leadása – Try Before Pay'; btn.className='cta-btn';
+  } else {
+    tbpOpt.classList.add('locked'); badge.textContent='Nem elérhető'; badge.className='pay-option-badge badge-lock';
+    selectedPayOpt='card'; tbpOpt.classList.remove('selected'); document.getElementById('opt-card').classList.add('selected');
+    btn.textContent='Rendelés leadása – Bankkártya'; btn.className='cta-btn';
+  }
+}
+
+function selectPayOption(opt) {
+  if(opt==='tbp' && !users[currentUser].tbp) return;
+  selectedPayOpt=opt;
+  document.getElementById('opt-tbp').classList.toggle('selected', opt==='tbp');
+  document.getElementById('opt-card').classList.toggle('selected', opt==='card');
+  document.getElementById('order-btn').textContent = opt==='tbp'?'Rendelés leadása – Try Before Pay':'Rendelés leadása – Bankkártya';
+}
+
+function selectSize(el) {
+  document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function placeOrder() { document.getElementById('success-overlay').classList.add('show'); }
+function dismissSuccess() { document.getElementById('success-overlay').classList.remove('show'); }
+
+const weeks=['H1','H2','H3','H4','H5','H6'];
+const kept=[42,58,61,74,82,89];
+const returned=[18,24,19,22,21,18];
+function buildMerchChart() {
+  const max=110; const wrap=document.getElementById('merch-chart'); wrap.innerHTML='';
+  weeks.forEach((w,i) => {
+    const col=document.createElement('div'); col.className='bar-col';
+    const sw=document.createElement('div'); sw.className='bar-seg-wrap'; sw.style.height='90px'; sw.style.display='flex'; sw.style.flexDirection='column'; sw.style.justifyContent='flex-end'; sw.style.gap='2px';
+    const bK=document.createElement('div'); bK.className='bar-seg'; bK.style.height=Math.round(kept[i]/max*90)+'px'; bK.style.background='#1D9E75'; bK.style.borderRadius='4px 4px 0 0';
+    const bR=document.createElement('div'); bR.className='bar-seg'; bR.style.height=Math.round(returned[i]/max*90)+'px'; bR.style.background='#D3D1C7'; bR.style.borderRadius='0';
+    const lbl=document.createElement('div'); lbl.className='bar-lbl'; lbl.textContent=w;
+    sw.appendChild(bK); sw.appendChild(bR); col.appendChild(sw); col.appendChild(lbl); wrap.appendChild(col);
+  });
+}
+
+const riskUsers = {
+  anna:   { name:'Kovács Anna',  sub:'Aktív vásárló · 3 éve regisztrált', score:92, scoreColor:'#1D9E75', trackColor:'#E1F5EE', numColor:'#1D9E75',
+    factors:[{name:'Fizetési előzmény',pct:95,cls:'green',icon:'✓',ftype:'fmf-green'},{name:'Visszaküldési arány (8%)',pct:88,cls:'green',icon:'↩',ftype:'fmf-green'},{name:'Fiókkor és aktivitás',pct:90,cls:'green',icon:'⏱',ftype:'fmf-green'},{name:'Viselkedési konzisztencia',pct:85,cls:'green',icon:'~',ftype:'fmf-green'},{name:'Fraud jelek',pct:0,cls:'green',icon:'⚑',ftype:'fmf-green'}],
+    limits:[['TBP limit','80 000 Ft'],['Aktív TBP rendelések','2'],['Max egyszeri tétel','40 000 Ft'],['Státusz','Megbízható']]},
+  bela:   { name:'Tóth Béla', sub:'Közepes aktivitás · 8 hónapja regisztrált', score:61, scoreColor:'#BA7517', trackColor:'#FAEEDA', numColor:'#BA7517',
+    factors:[{name:'Fizetési előzmény',pct:65,cls:'amber',icon:'~',ftype:'fmf-amber'},{name:'Visszaküldési arány (24%)',pct:50,cls:'amber',icon:'↩',ftype:'fmf-amber'},{name:'Fiókkor és aktivitás',pct:40,cls:'amber',icon:'⏱',ftype:'fmf-amber'},{name:'Viselkedési konzisztencia',pct:70,cls:'green',icon:'~',ftype:'fmf-green'},{name:'Fraud jelek (1 jel)',pct:30,cls:'amber',icon:'⚑',ftype:'fmf-amber'}],
+    limits:[['TBP limit','30 000 Ft'],['Aktív TBP rendelések','0'],['Max egyszeri tétel','15 000 Ft'],['Státusz','Korlátozott']]},
+  csaba:  { name:'Kiss Csaba', sub:'Alacsony megbízhatóság · 2 hónapja regisztrált', score:28, scoreColor:'#A32D2D', trackColor:'#FCEBEB', numColor:'#A32D2D',
+    factors:[{name:'Fizetési előzmény',pct:20,cls:'red',icon:'✗',ftype:'fmf-red'},{name:'Visszaküldési arány (54%)',pct:10,cls:'red',icon:'↩',ftype:'fmf-red'},{name:'Fiókkor és aktivitás',pct:15,cls:'red',icon:'⏱',ftype:'fmf-red'},{name:'Viselkedési konzisztencia',pct:35,cls:'amber',icon:'~',ftype:'fmf-amber'},{name:'Fraud jelek (3 jel)',pct:5,cls:'red',icon:'⚑',ftype:'fmf-red'}],
+    limits:[['TBP limit','0 Ft'],['Aktív TBP rendelések','–'],['Max egyszeri tétel','–'],['Státusz','Letiltva']]},
+  eszter: { name:'Molnár Eszter', sub:'Aktív vásárló · 2 éve regisztrált', score:87, scoreColor:'#1D9E75', trackColor:'#E1F5EE', numColor:'#1D9E75',
+    factors:[{name:'Fizetési előzmény',pct:88,cls:'green',icon:'✓',ftype:'fmf-green'},{name:'Visszaküldési arány (15%)',pct:78,cls:'green',icon:'↩',ftype:'fmf-green'},{name:'Fiókkor és aktivitás',pct:85,cls:'green',icon:'⏱',ftype:'fmf-green'},{name:'Viselkedési konzisztencia',pct:80,cls:'green',icon:'~',ftype:'fmf-green'},{name:'Fraud jelek',pct:0,cls:'green',icon:'⚑',ftype:'fmf-green'}],
+    limits:[['TBP limit','60 000 Ft'],['Aktív TBP rendelések','1'],['Max egyszeri tétel','30 000 Ft'],['Státusz','Megbízható']]}
+};
+
+function selectRiskUser(el, key) {
+  document.querySelectorAll('.user-row').forEach(r => r.classList.remove('active'));
+  el.classList.add('active');
+  renderRiskDetail(key);
+}
+
+function renderRiskDetail(key) {
+  const d = riskUsers[key];
+  const circ = 2*Math.PI*46;
+  const dash = circ*(d.score/100);
+  let html = `<div class="detail-name">${d.name}</div><div class="detail-sub">${d.sub}</div>
+    <div class="score-circle-wrap"><div class="score-circle">
+      <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="46" fill="none" stroke="${d.trackColor}" stroke-width="10"/><circle cx="60" cy="60" r="46" fill="none" stroke="${d.scoreColor}" stroke-width="10" stroke-dasharray="${dash.toFixed(1)} ${circ.toFixed(1)}" stroke-linecap="round"/></svg>
+      <div class="score-circle-text"><span class="score-num" style="color:${d.numColor}">${d.score}</span><span class="score-lbl">trust score</span></div>
+    </div></div><div class="factors-list">`;
+  d.factors.forEach(f => {
+    html += `<div class="factor-row"><div class="factor-icon ${f.cls}">${f.icon}</div><div class="factor-body"><div class="factor-row-name">${f.name}</div><div class="factor-mini-bar"><div class="factor-mini-fill ${f.ftype}" style="width:${f.pct}%"></div></div></div><div class="factor-pct" style="color:${f.cls==='green'?'#1D9E75':f.cls==='amber'?'#BA7517':'#A32D2D'}">${f.pct}%</div></div>`;
+  });
+  html += `</div><div>`;
+  d.limits.forEach(l => { html += `<div class="limit-row"><span class="limit-key">${l[0]}</span><span class="limit-val">${l[1]}</span></div>`; });
+  html += `</div><div class="action-row"><button class="action-btn primary">Limit módosítás</button><button class="action-btn danger">Letiltás</button></div>`;
+  document.getElementById('risk-detail-inner').innerHTML = html;
+}
+
+buildMerchChart();
+renderRiskDetail('anna');
+</script>
+</body>
+</html>
