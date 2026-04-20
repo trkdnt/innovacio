@@ -6,34 +6,25 @@
 <title>TrustPay – Try Before Pay Demo</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #f6f6f6; color: #1a1a1a; min-height: 100vh; padding: 2rem; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f4f0; color: #1a1a18; min-height: 100vh; padding: 2rem; }
   :root {
     --color-background-primary: #ffffff;
-    --color-background-secondary: #f6f6f6;
-    --color-background-tertiary: #efefef;
-    --color-text-primary: #1a1a1a;
-    --color-text-secondary: #767676;
-    --color-text-tertiary: #999999;
-    --color-border-tertiary: rgba(0,0,0,0.1);
-    --color-border-secondary: rgba(0,0,0,0.2);
-    --z-orange: #FF6900;
-    --z-orange-dark: #e05e00;
-    --z-orange-light: #fff3ec;
-    --z-green: #009900;
-    --z-green-light: #e6f5e6;
-    --z-amber: #c67200;
-    --z-amber-light: #fff8e6;
-    --z-red: #c0392b;
-    --z-red-light: #fdf0ef;
-    --border-radius-md: 4px;
-    --border-radius-lg: 4px;
-    --border-radius-xl: 6px;
-    --font-sans: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    --color-background-secondary: #f1efe8;
+    --color-background-tertiary: #f5f4f0;
+    --color-text-primary: #1a1a18;
+    --color-text-secondary: #5f5e5a;
+    --color-text-tertiary: #888780;
+    --color-border-tertiary: rgba(0,0,0,0.12);
+    --color-border-secondary: rgba(0,0,0,0.25);
+    --border-radius-md: 8px;
+    --border-radius-lg: 12px;
+    --border-radius-xl: 16px;
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
   .app { max-width: 900px; margin: 0 auto; }
   .header { margin-bottom: 1.5rem; }
   .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
-  .logo-mark { width: 32px; height: 32px; background: #FF6900; border-radius: 4px; display: flex; align-items: center; justify-content: center; }
+  .logo-mark { width: 32px; height: 32px; background: #1D9E75; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
   .logo-mark svg { width: 18px; height: 18px; fill: none; stroke: #fff; stroke-width: 2; }
   .logo-name { font-size: 18px; font-weight: 500; color: var(--color-text-primary); }
   .logo-tag { font-size: 12px; color: var(--color-text-secondary); margin-left: 42px; }
@@ -55,7 +46,7 @@
   .product-price { font-size: 22px; font-weight: 500; margin-bottom: 4px; }
   .product-sizes { display: flex; gap: 8px; margin-bottom: 1rem; }
   .size-btn { width: 36px; height: 36px; border: 0.5px solid var(--color-border-secondary); border-radius: 6px; background: transparent; cursor: pointer; font-size: 13px; color: var(--color-text-primary); }
-  .size-btn.selected { border: 2px solid #FF6900; color: #FF6900; font-weight: 500; }
+  .size-btn.selected { border: 2px solid #1D9E75; color: #1D9E75; font-weight: 500; }
 
   .checkout-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; }
   .section-title { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 1rem; }
@@ -63,45 +54,45 @@
   .trust-bar-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
   .trust-label { font-size: 13px; color: var(--color-text-secondary); }
   .trust-score { font-size: 18px; font-weight: 500; }
-  .trust-score.high { color: #009900; }
-  .trust-score.med { color: #c67200; }
-  .trust-score.low { color: #c0392b; }
+  .trust-score.high { color: #1D9E75; }
+  .trust-score.med { color: #BA7517; }
+  .trust-score.low { color: #A32D2D; }
   .bar-track { height: 8px; background: var(--color-background-secondary); border-radius: 99px; overflow: hidden; }
   .bar-fill { height: 100%; border-radius: 99px; transition: width 0.6s cubic-bezier(.4,0,.2,1); }
-  .bar-fill.high { background: #009900; }
-  .bar-fill.med { background: #c67200; }
-  .bar-fill.low { background: #c0392b; }
+  .bar-fill.high { background: #1D9E75; }
+  .bar-fill.med { background: #BA7517; }
+  .bar-fill.low { background: #A32D2D; }
   .trust-factors { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 1rem; }
   .factor { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 8px 10px; }
   .factor-name { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 2px; }
   .factor-val { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
   .divider { height: 0.5px; background: var(--color-border-tertiary); margin: 1rem 0; }
   .pay-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 1rem; }
-  .pay-option { border: 1px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 12px; cursor: pointer; transition: border-color 0.15s; }
-  .pay-option.selected { border: 2px solid #FF6900; background: #fff3ec; }
+  .pay-option { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 12px; cursor: pointer; transition: border-color 0.15s; }
+  .pay-option.selected { border: 2px solid #1D9E75; background: #E1F5EE; }
   .pay-option.locked { opacity: 0.45; cursor: not-allowed; }
   .pay-option-header { display: flex; align-items: center; justify-content: space-between; }
   .pay-option-name { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
-  .pay-option-badge { font-size: 11px; padding: 2px 8px; border-radius: 2px; font-weight: 500; }
-  .badge-green { background: #e6f5e6; color: #006600; }
+  .pay-option-badge { font-size: 11px; padding: 2px 8px; border-radius: 99px; font-weight: 500; }
+  .badge-green { background: #E1F5EE; color: #0F6E56; }
   .badge-gray { background: var(--color-background-secondary); color: var(--color-text-secondary); }
-  .badge-lock { background: #fdf0ef; color: #c0392b; }
+  .badge-lock { background: #FCEBEB; color: #A32D2D; }
   .pay-option-desc { font-size: 12px; color: var(--color-text-secondary); margin-top: 4px; }
-  .cta-btn { width: 100%; padding: 12px; background: #FF6900; color: #fff; border: none; border-radius: var(--border-radius-md); font-size: 15px; font-weight: 700; cursor: pointer; transition: background 0.15s; letter-spacing: 0.01em; }
-  .cta-btn:hover { background: #e05e00; }
+  .cta-btn { width: 100%; padding: 12px; background: #1D9E75; color: #fff; border: none; border-radius: var(--border-radius-md); font-size: 15px; font-weight: 500; cursor: pointer; transition: background 0.15s; }
+  .cta-btn:hover { background: #0F6E56; }
   .order-lines { margin-bottom: 1rem; }
   .order-line { display: flex; justify-content: space-between; font-size: 13px; color: var(--color-text-secondary); padding: 4px 0; }
   .order-total { display: flex; justify-content: space-between; font-size: 15px; font-weight: 500; padding: 8px 0 0; border-top: 0.5px solid var(--color-border-tertiary); }
   .user-switcher { display: flex; gap: 8px; margin-bottom: 1rem; }
-  .user-btn { flex: 1; padding: 8px; border: 1px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); background: transparent; cursor: pointer; text-align: center; font-size: 12px; color: var(--color-text-secondary); transition: all 0.15s; }
-  .user-btn.active { border: 2px solid #FF6900; color: #FF6900; font-weight: 500; background: #fff3ec; }
+  .user-btn { flex: 1; padding: 8px; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); background: transparent; cursor: pointer; text-align: center; font-size: 12px; color: var(--color-text-secondary); transition: all 0.15s; }
+  .user-btn.active { border: 2px solid #1D9E75; color: #1D9E75; font-weight: 500; background: #E1F5EE; }
   .user-btn-name { font-weight: 500; font-size: 13px; color: var(--color-text-primary); }
-  .success-overlay { display: none; position: absolute; inset: 0; background: rgba(255,105,0,0.96); border-radius: var(--border-radius-lg); align-items: center; justify-content: center; flex-direction: column; gap: 12px; z-index: 10; }
+  .success-overlay { display: none; position: absolute; inset: 0; background: rgba(29,158,117,0.95); border-radius: var(--border-radius-lg); align-items: center; justify-content: center; flex-direction: column; gap: 12px; z-index: 10; }
   .success-overlay.show { display: flex; }
   .success-icon { width: 56px; height: 56px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-  .success-text { color: #fff; font-size: 18px; font-weight: 700; }
-  .success-sub { color: rgba(255,255,255,0.9); font-size: 13px; text-align: center; padding: 0 20px; }
-  .success-dismiss { background: rgba(255,255,255,0.2); border: none; color: #fff; padding: 8px 20px; border-radius: 2px; cursor: pointer; font-size: 13px; margin-top: 4px; }
+  .success-text { color: #fff; font-size: 18px; font-weight: 500; }
+  .success-sub { color: rgba(255,255,255,0.85); font-size: 13px; text-align: center; padding: 0 20px; }
+  .success-dismiss { background: rgba(255,255,255,0.2); border: none; color: #fff; padding: 8px 20px; border-radius: 99px; cursor: pointer; font-size: 13px; margin-top: 4px; }
   .checkout-wrap { position: relative; }
 
   .stat-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
@@ -109,7 +100,7 @@
   .stat-label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 6px; }
   .stat-val { font-size: 22px; font-weight: 500; }
   .stat-delta { font-size: 12px; margin-top: 4px; }
-  .delta-up { color: #009900; }
+  .delta-up { color: #1D9E75; }
   .orders-table { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; margin-bottom: 1.5rem; }
   .table-header { display: grid; grid-template-columns: 2fr 1.2fr 1fr 1fr 1.2fr; padding: 10px 16px; background: var(--color-background-secondary); border-bottom: 0.5px solid var(--color-border-tertiary); }
   .th { font-size: 11px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; }
@@ -117,10 +108,10 @@
   .table-row:last-child { border-bottom: none; }
   .td { font-size: 13px; }
   .td-muted { font-size: 12px; color: var(--color-text-secondary); }
-  .status-pill { display: inline-block; padding: 3px 10px; border-radius: 2px; font-size: 11px; font-weight: 500; }
-  .pill-pending { background: #fff3ec; color: #cc5500; }
-  .pill-kept { background: #e6f5e6; color: #006600; }
-  .pill-returned { background: #f6f6f6; color: #767676; }
+  .status-pill { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 500; }
+  .pill-pending { background: #FAEEDA; color: #854F0B; }
+  .pill-kept { background: #E1F5EE; color: #0F6E56; }
+  .pill-returned { background: #F1EFE8; color: #5F5E5A; }
   .chart-section { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; }
   .chart-title { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 1rem; }
   .bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 100px; }
@@ -135,7 +126,7 @@
   .user-row { padding: 12px 16px; border-bottom: 0.5px solid var(--color-border-tertiary); cursor: pointer; transition: background 0.1s; }
   .user-row:last-child { border-bottom: none; }
   .user-row:hover { background: var(--color-background-secondary); }
-  .user-row.active { background: #fff3ec; border-left: 3px solid #FF6900; }
+  .user-row.active { background: #E1F5EE; }
   .user-row-name { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
   .user-row-meta { font-size: 11px; color: var(--color-text-secondary); }
   .score-circle-wrap { display: flex; justify-content: center; margin-bottom: 1.25rem; }
@@ -149,26 +140,26 @@
   .detail-sub { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 1.25rem; }
   .factors-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.25rem; }
   .factor-row { display: flex; align-items: center; gap: 10px; }
-  .factor-icon { width: 28px; height: 28px; border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 12px; }
-  .factor-icon.green { background: #e6f5e6; color: #006600; }
-  .factor-icon.amber { background: #fff8e6; color: #c67200; }
-  .factor-icon.red { background: #fdf0ef; color: #c0392b; }
+  .factor-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 12px; }
+  .factor-icon.green { background: #E1F5EE; color: #0F6E56; }
+  .factor-icon.amber { background: #FAEEDA; color: #854F0B; }
+  .factor-icon.red { background: #FCEBEB; color: #791F1F; }
   .factor-body { flex: 1; }
   .factor-row-name { font-size: 13px; }
   .factor-mini-bar { height: 4px; background: var(--color-background-secondary); border-radius: 99px; margin-top: 4px; overflow: hidden; }
   .factor-mini-fill { height: 100%; border-radius: 99px; }
-  .fmf-green { background: #009900; }
-  .fmf-amber { background: #c67200; }
-  .fmf-red { background: #c0392b; }
+  .fmf-green { background: #1D9E75; }
+  .fmf-amber { background: #BA7517; }
+  .fmf-red { background: #A32D2D; }
   .factor-pct { font-size: 12px; font-weight: 500; width: 36px; text-align: right; flex-shrink: 0; }
   .limit-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
   .limit-row:last-child { border-bottom: none; }
   .limit-key { font-size: 13px; color: var(--color-text-secondary); }
   .limit-val { font-size: 13px; font-weight: 500; }
   .action-row { display: flex; gap: 8px; margin-top: 1rem; }
-  .action-btn { flex: 1; padding: 8px; border: 1px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: transparent; cursor: pointer; font-size: 13px; font-weight: 500; }
-  .action-btn.primary { background: #FF6900; color: #fff; border-color: transparent; }
-  .action-btn.danger { border-color: #c0392b; color: #c0392b; }
+  .action-btn { flex: 1; padding: 8px; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); background: transparent; cursor: pointer; font-size: 13px; }
+  .action-btn.primary { background: #1D9E75; color: #fff; border-color: transparent; }
+  .action-btn.danger { border-color: #E24B4A; color: #A32D2D; }
 </style>
 </head>
 <body>
@@ -291,7 +282,7 @@
       <div class="chart-title">Heti rendelés megoszlás – megtartás vs visszaküldés</div>
       <div class="bar-chart" id="merch-chart"></div>
       <div style="display:flex;gap:12px;align-items:center;margin-top:10px;">
-        <div style="display:flex;gap:6px;align-items:center"><div style="width:10px;height:10px;background:#FF6900;border-radius:2px"></div><span style="font-size:11px;color:var(--color-text-secondary)">Megtartva</span></div>
+        <div style="display:flex;gap:6px;align-items:center"><div style="width:10px;height:10px;background:#1D9E75;border-radius:2px"></div><span style="font-size:11px;color:var(--color-text-secondary)">Megtartva</span></div>
         <div style="display:flex;gap:6px;align-items:center"><div style="width:10px;height:10px;background:#D3D1C7;border-radius:2px"></div><span style="font-size:11px;color:var(--color-text-secondary)">Visszaküldve</span></div>
       </div>
     </div>
@@ -380,24 +371,24 @@ function buildMerchChart() {
   weeks.forEach((w,i) => {
     const col=document.createElement('div'); col.className='bar-col';
     const sw=document.createElement('div'); sw.className='bar-seg-wrap'; sw.style.height='90px'; sw.style.display='flex'; sw.style.flexDirection='column'; sw.style.justifyContent='flex-end'; sw.style.gap='2px';
-    const bK=document.createElement('div'); bK.className='bar-seg'; bK.style.height=Math.round(kept[i]/max*90)+'px'; bK.style.background='#FF6900'; bK.style.borderRadius='4px 4px 0 0';
-    const bR=document.createElement('div'); bR.className='bar-seg'; bR.style.height=Math.round(returned[i]/max*90)+'px'; bR.style.background='#d0d0d0'; bR.style.borderRadius='0';
+    const bK=document.createElement('div'); bK.className='bar-seg'; bK.style.height=Math.round(kept[i]/max*90)+'px'; bK.style.background='#1D9E75'; bK.style.borderRadius='4px 4px 0 0';
+    const bR=document.createElement('div'); bR.className='bar-seg'; bR.style.height=Math.round(returned[i]/max*90)+'px'; bR.style.background='#D3D1C7'; bR.style.borderRadius='0';
     const lbl=document.createElement('div'); lbl.className='bar-lbl'; lbl.textContent=w;
     sw.appendChild(bK); sw.appendChild(bR); col.appendChild(sw); col.appendChild(lbl); wrap.appendChild(col);
   });
 }
 
 const riskUsers = {
-  anna:   { name:'Kovács Anna',  sub:'Aktív vásárló · 3 éve regisztrált', score:92, scoreColor:'#009900', trackColor:'#e6f5e6', numColor:'#009900',
+  anna:   { name:'Kovács Anna',  sub:'Aktív vásárló · 3 éve regisztrált', score:92, scoreColor:'#1D9E75', trackColor:'#E1F5EE', numColor:'#1D9E75',
     factors:[{name:'Fizetési előzmény',pct:95,cls:'green',icon:'✓',ftype:'fmf-green'},{name:'Visszaküldési arány (8%)',pct:88,cls:'green',icon:'↩',ftype:'fmf-green'},{name:'Fiókkor és aktivitás',pct:90,cls:'green',icon:'⏱',ftype:'fmf-green'},{name:'Viselkedési konzisztencia',pct:85,cls:'green',icon:'~',ftype:'fmf-green'},{name:'Fraud jelek',pct:0,cls:'green',icon:'⚑',ftype:'fmf-green'}],
     limits:[['TBP limit','80 000 Ft'],['Aktív TBP rendelések','2'],['Max egyszeri tétel','40 000 Ft'],['Státusz','Megbízható']]},
-  bela:   { name:'Tóth Béla', sub:'Közepes aktivitás · 8 hónapja regisztrált', score:61, scoreColor:'#c67200', trackColor:'#fff8e6', numColor:'#c67200',
+  bela:   { name:'Tóth Béla', sub:'Közepes aktivitás · 8 hónapja regisztrált', score:61, scoreColor:'#BA7517', trackColor:'#FAEEDA', numColor:'#BA7517',
     factors:[{name:'Fizetési előzmény',pct:65,cls:'amber',icon:'~',ftype:'fmf-amber'},{name:'Visszaküldési arány (24%)',pct:50,cls:'amber',icon:'↩',ftype:'fmf-amber'},{name:'Fiókkor és aktivitás',pct:40,cls:'amber',icon:'⏱',ftype:'fmf-amber'},{name:'Viselkedési konzisztencia',pct:70,cls:'green',icon:'~',ftype:'fmf-green'},{name:'Fraud jelek (1 jel)',pct:30,cls:'amber',icon:'⚑',ftype:'fmf-amber'}],
     limits:[['TBP limit','30 000 Ft'],['Aktív TBP rendelések','0'],['Max egyszeri tétel','15 000 Ft'],['Státusz','Korlátozott']]},
-  csaba:  { name:'Kiss Csaba', sub:'Alacsony megbízhatóság · 2 hónapja regisztrált', score:28, scoreColor:'#c0392b', trackColor:'#fdf0ef', numColor:'#c0392b',
+  csaba:  { name:'Kiss Csaba', sub:'Alacsony megbízhatóság · 2 hónapja regisztrált', score:28, scoreColor:'#A32D2D', trackColor:'#FCEBEB', numColor:'#A32D2D',
     factors:[{name:'Fizetési előzmény',pct:20,cls:'red',icon:'✗',ftype:'fmf-red'},{name:'Visszaküldési arány (54%)',pct:10,cls:'red',icon:'↩',ftype:'fmf-red'},{name:'Fiókkor és aktivitás',pct:15,cls:'red',icon:'⏱',ftype:'fmf-red'},{name:'Viselkedési konzisztencia',pct:35,cls:'amber',icon:'~',ftype:'fmf-amber'},{name:'Fraud jelek (3 jel)',pct:5,cls:'red',icon:'⚑',ftype:'fmf-red'}],
     limits:[['TBP limit','0 Ft'],['Aktív TBP rendelések','–'],['Max egyszeri tétel','–'],['Státusz','Letiltva']]},
-  eszter: { name:'Molnár Eszter', sub:'Aktív vásárló · 2 éve regisztrált', score:87, scoreColor:'#009900', trackColor:'#e6f5e6', numColor:'#009900',
+  eszter: { name:'Molnár Eszter', sub:'Aktív vásárló · 2 éve regisztrált', score:87, scoreColor:'#1D9E75', trackColor:'#E1F5EE', numColor:'#1D9E75',
     factors:[{name:'Fizetési előzmény',pct:88,cls:'green',icon:'✓',ftype:'fmf-green'},{name:'Visszaküldési arány (15%)',pct:78,cls:'green',icon:'↩',ftype:'fmf-green'},{name:'Fiókkor és aktivitás',pct:85,cls:'green',icon:'⏱',ftype:'fmf-green'},{name:'Viselkedési konzisztencia',pct:80,cls:'green',icon:'~',ftype:'fmf-green'},{name:'Fraud jelek',pct:0,cls:'green',icon:'⚑',ftype:'fmf-green'}],
     limits:[['TBP limit','60 000 Ft'],['Aktív TBP rendelések','1'],['Max egyszeri tétel','30 000 Ft'],['Státusz','Megbízható']]}
 };
@@ -418,7 +409,7 @@ function renderRiskDetail(key) {
       <div class="score-circle-text"><span class="score-num" style="color:${d.numColor}">${d.score}</span><span class="score-lbl">trust score</span></div>
     </div></div><div class="factors-list">`;
   d.factors.forEach(f => {
-    html += `<div class="factor-row"><div class="factor-icon ${f.cls}">${f.icon}</div><div class="factor-body"><div class="factor-row-name">${f.name}</div><div class="factor-mini-bar"><div class="factor-mini-fill ${f.ftype}" style="width:${f.pct}%"></div></div></div><div class="factor-pct" style="color:${f.cls==='green'?'#009900':f.cls==='amber'?'#c67200':'#c0392b'}">${f.pct}%</div></div>`;
+    html += `<div class="factor-row"><div class="factor-icon ${f.cls}">${f.icon}</div><div class="factor-body"><div class="factor-row-name">${f.name}</div><div class="factor-mini-bar"><div class="factor-mini-fill ${f.ftype}" style="width:${f.pct}%"></div></div></div><div class="factor-pct" style="color:${f.cls==='green'?'#1D9E75':f.cls==='amber'?'#BA7517':'#A32D2D'}">${f.pct}%</div></div>`;
   });
   html += `</div><div>`;
   d.limits.forEach(l => { html += `<div class="limit-row"><span class="limit-key">${l[0]}</span><span class="limit-val">${l[1]}</span></div>`; });
